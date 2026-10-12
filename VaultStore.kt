@@ -126,15 +126,17 @@ class VaultStore(private val ctx: Context) {
     }
 
     /** Copies (encrypts) a gallery item into the vault. Returns true on success. */
-    fun add(m: Media): Boolean = try {
+    fun add(m: Media): Boolean = runCatching { addInternal(m) }.getOrDefault(false)
+
+    private fun addInternal(m: Media): Boolean {
         val id = java.util.UUID.randomUUID().toString().replace("-", "")
         val data = ctx.contentResolver.openInputStream(m.uri)?.use { it.readBytes() } ?: return false
         writeEnc(File(dir, "$id.dat"), data)
         thumbOf(m)?.let { writeEnc(File(dir, "$id.thm"), it) }
         val meta = listOf(m.name, m.mime, if (m.isVideo) "1" else "0", m.dateTaken, data.size).joinToString("\u0001")
         prefs.edit().putString("item_$id", meta).apply()
-        true
-    } catch (e: Exception) { false }
+        return true
+    }
 
     fun readThumb(id: String): ByteArray? =
         File(dir, "$id.thm").takeIf { it.exists() }?.let { runCatching { readEnc(it) }.getOrNull() }
@@ -161,7 +163,9 @@ class VaultStore(private val ctx: Context) {
     }
 
     /** Decrypts the item back into the public gallery (Pictures|Movies/Restored) and removes it from the vault. */
-    fun restore(item: VaultItem): Boolean = try {
+    fun restore(item: VaultItem): Boolean = runCatching { restoreInternal(item) }.getOrDefault(false)
+
+    private fun restoreInternal(item: VaultItem): Boolean {
         val bytes = readFull(item.id) ?: return false
         val base = if (item.isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI else MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         val folder = if (item.isVideo) Environment.DIRECTORY_MOVIES else Environment.DIRECTORY_PICTURES
@@ -183,6 +187,6 @@ class VaultStore(private val ctx: Context) {
             ctx.contentResolver.update(uri, v, null, null)
         }
         delete(item.id)
-        true
-    } catch (e: Exception) { false }
+        return true
+    }
 }
