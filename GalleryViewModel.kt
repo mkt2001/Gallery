@@ -119,11 +119,11 @@ class GalleryViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     // ---------- settings ----------
-    fun setSort(s: SortOrder) { sort = s; prefs.edit().putString("sort", s.name).apply() }
-    fun setColumns(c: Int) { columns = c; prefs.edit().putInt("cols", c).apply() }
-    fun setTheme(t: String) { theme = t; prefs.edit().putString("theme", t).apply() }
-    fun setFilter(f: MediaFilter) { filter = f }
-    fun setQuery(q: String) { query = q }
+    fun updateSort(s: SortOrder) { sort = s; prefs.edit().putString("sort", s.name).apply() }
+    fun updateColumns(c: Int) { columns = c; prefs.edit().putInt("cols", c).apply() }
+    fun updateTheme(t: String) { theme = t; prefs.edit().putString("theme", t).apply() }
+    fun updateFilter(f: MediaFilter) { filter = f }
+    fun updateQuery(q: String) { query = q }
 
     // ---------- favorites ----------
     private fun saveFavorites() {

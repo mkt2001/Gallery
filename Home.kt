@@ -76,7 +76,7 @@ fun HomeScreen(
 
     BackHandler(selecting) { vm.clearSelection() }
     BackHandler(!selecting && openAlbum != null) { openAlbum = null }
-    BackHandler(!selecting && searching) { searching = false; vm.setQuery("") }
+    BackHandler(!selecting && searching) { searching = false; vm.updateQuery("") }
 
     val album = openAlbum?.let { id -> vm.albums.firstOrNull { it.bucketId == id } }
     val albumItems = remember(vm.media, vm.sort, vm.query, openAlbum) {
@@ -114,7 +114,7 @@ fun HomeScreen(
                         title = {
                             TextField(
                                 value = vm.query,
-                                onValueChange = vm::setQuery,
+                                onValueChange = vm::updateQuery,
                                 placeholder = { Text("Search by name or album") },
                                 singleLine = true,
                                 modifier = Modifier.focusRequester(focus),
@@ -127,7 +127,7 @@ fun HomeScreen(
                             )
                         },
                         navigationIcon = {
-                            IconButton({ searching = false; vm.setQuery("") }) {
+                            IconButton({ searching = false; vm.updateQuery("") }) {
                                 Icon(Icons.Filled.ArrowBack, "Close search")
                             }
                         }
@@ -159,7 +159,7 @@ fun HomeScreen(
                                 SortOrder.values().forEach { s ->
                                     DropdownMenuItem(
                                         text = { Text(s.label) },
-                                        onClick = { vm.setSort(s); menu = false },
+                                        onClick = { vm.updateSort(s); menu = false },
                                         trailingIcon = { if (vm.sort == s) Icon(Icons.Filled.Check, null) }
                                     )
                                 }
@@ -167,7 +167,7 @@ fun HomeScreen(
                                 (2..5).forEach { c ->
                                     DropdownMenuItem(
                                         text = { Text("$c columns") },
-                                        onClick = { vm.setColumns(c); menu = false },
+                                        onClick = { vm.updateColumns(c); menu = false },
                                         trailingIcon = { if (vm.columns == c) Icon(Icons.Filled.Check, null) }
                                     )
                                 }
@@ -175,7 +175,7 @@ fun HomeScreen(
                                 listOf("SYSTEM" to "System default", "LIGHT" to "Light", "DARK" to "Dark").forEach { (k, v) ->
                                     DropdownMenuItem(
                                         text = { Text(v) },
-                                        onClick = { vm.setTheme(k); menu = false },
+                                        onClick = { vm.updateTheme(k); menu = false },
                                         trailingIcon = { if (vm.theme == k) Icon(Icons.Filled.Check, null) }
                                     )
                                 }
@@ -220,7 +220,7 @@ fun HomeScreen(
                             MediaFilter.values().forEach { f ->
                                 FilterChip(
                                     selected = vm.filter == f,
-                                    onClick = { vm.setFilter(f) },
+                                    onClick = { vm.updateFilter(f) },
                                     label = { Text(f.label) }
                                 )
                             }
